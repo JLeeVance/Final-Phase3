@@ -1,4 +1,5 @@
 from models import *
+import random
 # from flask import Flask
 
 def get_all_pokemon():
@@ -51,3 +52,26 @@ def get_available_pokemon():
 def handle_pokemon_add(choice, new_trainer_id):
     poke = get_pokemon_by_id(choice)
     poke.trainer_id = new_trainer_id
+    db.session.commit()
+
+def get_random_wild():
+    wild_pokemon_list = get_available_pokemon()
+    wild_pokemon = random.choice(wild_pokemon_list)
+    return wild_pokemon
+
+def reduce_wild_hp(wild_pokemon, attack_damage):
+    wild_pokemon.starting_hp -= attack_damage
+    db.session.commit()
+
+def reduce_trainer_pokemon(pokemon, wild_attack_damage):
+    pokemon.starting_hp -= wild_attack_damage
+    db.session.commit()
+
+def handle_add_battle(pokemon, wild_pokemon):
+    battle = Battle(trainer_pokemon = pokemon.id, wild_pokemon = wild_pokemon.id)
+    db.session.add(battle)
+    db.session.commit()
+
+def handle_reset_pokemon(pokemon):
+    pokemon.starting_hp = pokemon.max_hp
+    db.session.commit()

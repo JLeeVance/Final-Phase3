@@ -221,7 +221,6 @@ def display_trainer_center_menu():
       '''def handle all_display_response()'''
    elif choice == '2':
       intro_create_trainer()
-      pass
    elif choice == '3':
       intro_choose_trainer()
       '''def select_trainer()'''
@@ -229,7 +228,7 @@ def display_trainer_center_menu():
       display_main_menu()
    else:
       clear()
-      print_error
+      print_error()
       two_second_timer()
       display_trainer_center_menu()
 
@@ -329,6 +328,7 @@ def intro_choose_trainer():
    console.print(Align.center(Padding("Below is a list of all available Trainers! \nChoose your Trainer by entering their ID below!", (3,2))))
    two_line_space()
    trainers = get_all_trainers()
+   length = len(trainers)
 #    print(trainers)
    for trainer in trainers:
       print(f"{trainer.id} | {trainer.name}")
@@ -337,12 +337,12 @@ def intro_choose_trainer():
 #    print_choice()
 #    print("1 - Trainer's ID \n2. Return to the Trainer Center")
    choice = get_choice()
-   if int(choice) in range(1 , get_trainer_count()):
+   if int(choice) in range(1 , int(length)+1):
       display_battle_menu(choice)
    else:
       intro_choose_trainer()
       
-
+""" Battle CLI """
 def display_battle_menu(choice):
    clear()
    trainer = get_trainer_by_id(choice)
@@ -359,7 +359,7 @@ def display_battle_menu(choice):
    if choice == '1':
       see_team_menu(pokemon, trainer)
    elif choice == '2':
-      pass
+      start_battle(trainer)
    elif choice == '3':
       display_trainer_center_menu()
    else:
@@ -373,7 +373,6 @@ def display_battle_menu(choice):
 
 
 def show_trainers_pokemon(pokemon, trainer):
-   clear()
    two_line_space()
    console.print(Align.center(Padding(f" - {trainer.name}'s Current Pokemon - ")))
    two_line_space()
@@ -465,11 +464,133 @@ def start_pokemon_catch(avail_pokemon, trainer):
    else:
       clear()
       handle_pokemon_add(choice, trainer.id)
+      pokemon = get_trainers_pokemon(trainer.id)
       console.print(Align.center(Padding(f" Success! \n\n you have successfully added {show_pokemon_name(choice)} to your team! ")))
       three_second_timer()
       display_battle_menu(trainer.id)
    
       
+''' Battle Arena Option 2 - Battle'''
 
+def start_battle(trainer):
+   clear()
+   two_line_space()
+   console.print(Align.center(Padding(f" {trainer.name} -- Get prepared to battle! \n\n Choose your selected Pokémon!", (2,3))))
+   pokemon = get_trainers_pokemon(trainer.id)
+   if len(pokemon) == 0:
+      clear()
+      console.print(Align.center(Padding(f"You do not have any Pokemon! You should try and catch some!", (2,2))))
+      three_second_timer()
+      poke_select_add(trainer)
+   else:
+      two_line_space()
+      ids = [poke.id for poke in pokemon]
+      show_trainers_pokemon(pokemon, trainer)
+      print('\n')
+      choice = input("What is the ID of the Pokémon you would like to use?")
+      if int(choice) not in ids:
+         clear()
+         print_error()
+         two_second_timer()
+         start_battle(trainer)
+      else:
+         get_wild_pokemon(trainer, int(choice))
+
+def get_wild_pokemon(trainer, pokemon_id):
+   clear()
+   pokemon = get_pokemon_by_id(pokemon_id)
+   two_line_space()
+   console.print(Align.center(Padding(f"Nice! {pokemon.name} is a great choice! \n\n Let me see if I can find you a wild Pokémon to battle...", (4,4))))
+   two_second_timer()
+   two_line_space()
+   console.print(Align.center(Padding("hmm....", (2,2))))
+   two_second_timer()
+   two_line_space()
+   wild_pokemon = get_random_wild()
+   console.print(Align.center(Padding(f"Of Course! {wild_pokemon.name} is the perfect match! ")))
+   two_second_timer()
+   intro_pokemon_in_battle(trainer, pokemon, wild_pokemon)
+
+
+def intro_pokemon_in_battle(trainer, pokemon, wild_pokemon):
+   clear()
+   handle_add_battle(pokemon, wild_pokemon)
+   console.print(Align.center(Padding("Battle Beginning...", (2,2) )))
+   one_second_timer()
+   console.print(Align.left(Padding(f"Trainer Name: {trainer.name} \nTrainer Pokémon: {pokemon.name}")))
+   one_second_timer()
+   print('\n')
+   console.print(Align.left(Padding(f"Wild Pokémon: {wild_pokemon.name}")))
+   two_second_timer()
+   begin_literal_battle(trainer, pokemon, wild_pokemon)
+
+def begin_literal_battle(trainer, pokemon, wild_pokemon):
+   poke_attack_damage = pokemon.attack_damage
+   wild_pokemon_attack_damage = wild_pokemon.attack_damage
+   two_line_space()
+
+   while True:
+    battle_menu(trainer, pokemon, wild_pokemon)
+    trainer_attack_text(pokemon, wild_pokemon)
+    two_second_timer()
+    handle_wild_attack(pokemon, wild_pokemon)
+    wild_attack_text(pokemon, wild_pokemon, trainer)
+    two_second_timer()
    
-    
+def trainer_attack_text(pokemon, wild_pokemon):
+   console.print(Align.left(Padding(f"{pokemon.name} attacked {wild_pokemon.name} with {pokemon.attack_name}", (1,1))))
+   one_second_timer()
+   console.print(Align.right(Padding(f"{wild_pokemon.name}'s HP was reduced to {wild_pokemon.starting_hp} ")))
+
+
+def wild_attack_text(pokemon, wild_pokemon, trainer):
+   console.print(Align.right(Padding(f"{wild_pokemon.name} attacked {pokemon.name} with {wild_pokemon.attack_name}")))
+   one_second_timer()
+   console.print(Align.left(Padding(f"{pokemon.name}'s HP was reduced to {pokemon.starting_hp}")))
+   if pokemon.starting_hp <= 0:
+      two_second_timer()
+      handle_battle_loss(pokemon, trainer)
+   two_second_timer()
+
+      
+
+def battle_menu(trainer, pokemon, wild_pokemon):
+   poke_attack_damage = pokemon.attack_damage
+   console.print(Align.left(Padding(f"- What would you like to do? -\n1. Attack \n2. Run")))
+   choice = get_choice()
+   if choice == '2':
+      display_trainer_center_menu()
+   elif choice == '1':
+      reduce_wild_hp(wild_pokemon, poke_attack_damage)
+      if wild_pokemon.starting_hp <= 0:
+         two_second_timer()
+         handle_battle_win(trainer, pokemon, wild_pokemon)
+         
+def handle_wild_attack(pokemon, wild_pokemon):
+   reduce_trainer_pokemon(pokemon, wild_pokemon.attack_damage)
+   console.print(Align.right(Padding(f"{wild_pokemon.name} attacked {pokemon.name} with {wild_pokemon.attack_name}")))
+
+def handle_battle_win(trainer, pokemon, wild_pokemon):
+   clear()
+   console.print(Align.center(Padding(f"I knew you could do it!" , (2,2))))
+   one_second_timer()
+   console.print(Align.center(Padding(f"{wild_pokemon.name} did not stand a chance against your {pokemon.name}!", (2,2))))
+   two_second_timer()
+   console.print(Align.center(Padding(f"See you next time, {trainer.name}")))
+   one_second_timer()
+   handle_reset_pokemon(wild_pokemon)
+   display_trainer_center_menu()
+   
+def handle_battle_loss(pokemon, trainer):
+   clear()
+   console.print(Align.center(Padding(f"Oh no...Your {pokemon.name} didn't make it..\n\n when Pokémon perish...we all cry..")))
+   handle_pokemon_release(pokemon.id)
+   handle_reset_pokemon(pokemon)
+   three_second_timer()
+   display_trainer_center_menu()
+   
+
+
+
+      
+
