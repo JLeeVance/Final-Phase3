@@ -39,6 +39,7 @@ def four_line_space():
    print("\n" * 4)
 
 def print_error():
+   clear()
    console.print(Align.center(Padding(" !! Your selection must be listed !!  ", (3,2))))  
 
 def print_prompt():
@@ -47,8 +48,8 @@ def print_prompt():
 def get_choice():
    return input("Response:     ")
 
-def get_terminal_size():
-    return os.get_terminal_size().columns
+# def get_terminal_size():
+#     return os.get_terminal_size().columns
 
 def print_choice():
    text = Text(" Options ")
@@ -159,7 +160,7 @@ def display_pokemon_details(poke_id):
       print("\n")
       if pokemon_details.trainer_id:
         owner_id = pokemon_details.trainer_id
-        print(f'This Pokémon is currently being trained by: {show_pokemon_trainer(owner_id)}')
+        print(f'This Pokémon is currently being trained by: {show_pokemon_trainer_name(owner_id)}')
         four_line_space()
       done = input("Press enter when finished")
       if len(done) >= 0:
@@ -182,7 +183,7 @@ def display_details_menu():
       display_pokemon_center()
    else:
         clear()
-        print(" !!! The command must be one of the numbers on display. !!! ")
+        print_error()
         two_second_timer()
         clear()
         display_details_menu()
@@ -219,33 +220,56 @@ def display_trainer_center_menu():
       display_all_trainers()
       '''def handle all_display_response()'''
    elif choice == '2':
-      '''def create_new_trainer()'''
+      intro_create_trainer()
       pass
    elif choice == '3':
-      '''def display_all_trainers()'''
+      intro_choose_trainer()
       '''def select_trainer()'''
    elif choice == '4':
       display_main_menu()
    else:
+      clear()
       print_error
       two_second_timer()
       display_trainer_center_menu()
-      
+
+''' Trainer Center Menu Option 1''' 
 
 def display_all_trainers():
    clear()
    trainers = get_all_trainers()
    for trainer in trainers:
-      print(f"{trainer.name} | age: {trainer.age}")
+      print(f"{trainer.id} | {trainer.name} | age: {trainer.age}")
    two_line_space()
    trainer_display_options()
 
 def trainer_display_options():
-   print(Align.left(" - What's Next? - "))
+   console.print(Align.left(" - What's Next? - "))
    print("1. View Trainer Details \n2. Return to Trainer Center")
    two_line_space()
    print_choice()
    print('1 \n2')
+   choice = get_choice()
+   if choice == '1':
+      inner_choice = input("What is the ID of the trainer you'd like to see?  ")
+      display_trainer_details(inner_choice)
+   elif choice == '2':
+      display_trainer_center_menu()
+   else:
+      print_error()
+
+def display_trainer_details(trainer_id):
+   clear()
+   trainer = get_trainer_by_id(trainer_id)
+   console.print(Align.center(Padding(f"Trainer Name:  {trainer.name} \nAge:  {trainer.age} \nMotto:  {trainer.motto}", (2,3))))
+   
+   two_line_space()
+   console.print(Align.left(" - What's next? - "))
+   console.print(Align.left(Padding("1. See All Trainers \n2. Exit to Trainer Center")))
+   two_line_space()
+   print_choice()
+   print("1 \n2")
+   
    choice = get_choice()
    if choice == '1':
       display_all_trainers()
@@ -254,5 +278,198 @@ def trainer_display_options():
    else:
       clear()
       print_error()
-   
+      two_second_timer()
+      display_trainer_details(trainer_id)
+      
+''' Trainer Center Menu Option 2'''
 
+def intro_create_trainer():
+   clear()
+   console.print(Align.center(Padding("I'm happy to hear that you beginning your Pokémon Master journey! \n\n Let's start by getting to know you!.", (3,2))))
+   two_line_space()
+   ready = input("Enter...")
+   if len(ready) >= 0:
+      create_new_trainer()
+
+def create_new_trainer():
+   clear()
+   console.print(Align.center(Padding('What is your name?', (3,3))))
+   two_line_space()
+   name = get_choice()
+   if len(name) >= 1:
+      get_new_trainer_age(name)
+   else:
+      create_new_trainer()
+   
+def get_new_trainer_age(name):
+   clear()
+   console.print(Align.center(Padding(f"Well hello, {name}! We are happy to have you! \n \n How old are you?")))
+   two_line_space()
+   age = get_choice()
+   if len(age) >= 1 and len(age) < 3:
+    get_new_trainer_motto(name, age)
+   else:
+      get_new_trainer_age()
+
+def get_new_trainer_motto(name, age):
+   clear()
+   console.print(Align.center(Padding(f"{name}, with your life expereince I am sure that you will make an excellent Pokémon Trainer! \nOne final thing...we all have our own little catch phrase around here... \nWhat would your motto be?", (3,2))))
+   two_line_space()
+   new_motto = get_choice()
+   if len(new_motto) >= 2:
+      add_trainer_to_table(name, age, new_motto)
+      display_all_trainers()
+   else:
+      get_new_trainer_motto()
+
+''' Trainer Center Menu Option 3'''
+
+def intro_choose_trainer():
+   clear()
+   console.print(Align.center(Padding("Below is a list of all available Trainers! \nChoose your Trainer by entering their ID below!", (3,2))))
+   two_line_space()
+   trainers = get_all_trainers()
+#    print(trainers)
+   for trainer in trainers:
+      print(f"{trainer.id} | {trainer.name}")
+   two_line_space()
+
+#    print_choice()
+#    print("1 - Trainer's ID \n2. Return to the Trainer Center")
+   choice = get_choice()
+   if int(choice) in range(1 , get_trainer_count()):
+      display_battle_menu(choice)
+   else:
+      intro_choose_trainer()
+      
+
+def display_battle_menu(choice):
+   clear()
+   trainer = get_trainer_by_id(choice)
+   pokemon = get_trainers_pokemon(trainer.id)
+   console.print(Align.center(Padding(f"Welcome, {trainer.name}, to the Battle Arena! \n Here you can view and manage your team, and start a Battle!")))
+   two_line_space
+
+   console.print(Align.left(Padding(' - Battle Arena - ', (1,1))))
+   console.print(f"1. See {trainer.name}'s Pokemon \n2. Battle \n3. Exit to Trainer Menu")
+   console.print('\n')
+   print_choice()
+   console.print('1 \n2 \n3')
+   choice = get_choice()
+   if choice == '1':
+      see_team_menu(pokemon, trainer)
+   elif choice == '2':
+      pass
+   elif choice == '3':
+      display_trainer_center_menu()
+   else:
+      clear()
+      print_error()
+      two_second_timer()
+      display_battle_menu(choice)
+      
+''' Battle Arena Menu Option 1 '''
+
+
+
+def show_trainers_pokemon(pokemon, trainer):
+   clear()
+   two_line_space()
+   console.print(Align.center(Padding(f" - {trainer.name}'s Current Pokemon - ")))
+   two_line_space()
+   for poke in pokemon:
+      console.print(Align.left(Padding(f"{poke.id} | {poke.name}", (1,1))))
+    
+def see_team_menu(pokemon, trainer):
+    clear()
+    show_trainers_pokemon(pokemon, trainer)
+    two_line_space()
+    console.print(Align.left(" - What would you like to do? -"))
+    console.print(Align.left("1. Remove Pokémon from team \n2. Add Pokémon to Team \n3. Exit to Battle Arena"))
+    print('\n')
+    print_choice()
+    print("1 \n2 \n3")
+    choice = get_choice()
+    if choice == '1':
+       poke_select_remove(pokemon, trainer)
+       pass
+    elif choice == '2':
+       poke_select_add(trainer)
+    elif choice == '3':
+       display_battle_menu(trainer.id)
+    else:
+       clear()
+       print_error()
+       two_second_timer()
+       see_team_menu(pokemon, trainer)
+
+'''from within - Option 1 - Release Pokemon'''
+def poke_select_remove(pokemon, trainer):
+   clear()
+   poke_id = []
+   for poke in pokemon:
+      poke_id.append(str(poke.id))
+   show_trainers_pokemon(pokemon, trainer)
+   two_line_space
+   console.print("Please enter the ID of the Pokémon you wish to release")
+   choice = get_choice()
+   if choice not in poke_id:
+      clear()
+      print_error()
+      two_second_timer()
+      see_team_menu(pokemon, trainer)
+   else:
+      clear()
+      handle_pokemon_release(choice)
+      console.print(Align.center(Padding('The requested Pokémon was removed from your team.', (3,2))))
+      three_second_timer()
+      display_battle_menu(trainer.id)
+    #   handle_pokemon_release()
+
+'''from within - Option 2 - Add To Team'''
+
+def poke_select_add(trainer):
+   clear()
+   two_line_space()
+   avail_pokemon = get_available_pokemon()
+   for poke in avail_pokemon:
+      console.print(f"{poke.id} | {poke.name}")
+   two_line_space()
+   console.print(Align.center(Padding(" - Would you like to try and catch one? -", (3,2))))
+   console.print(Align.left(Padding('1. Yes \n2. Return to Battle Arena ')))
+   print('\n')
+   print_choice()
+   print('1 \n2 ')
+   choice = get_choice()
+   if choice == '1':
+      start_pokemon_catch(avail_pokemon, trainer)
+   elif choice == '2':
+      display_battle_menu(trainer.id)
+   else:
+      clear()
+      print_error()
+      two_second_timer()
+      poke_select_add(trainer)
+
+def start_pokemon_catch(avail_pokemon, trainer):
+   id_list = []
+   for poke in avail_pokemon:
+      id_list.append(str(poke.id))
+   print('\n')
+   choice = input('What is the ID of the Pokemon you would like to catch?')
+   if choice not in id_list:
+      clear()
+      print_error()
+      two_second_timer()
+      start_pokemon_catch(avail_pokemon, trainer)
+   else:
+      clear()
+      handle_pokemon_add(choice, trainer.id)
+      console.print(Align.center(Padding(f" Success! \n\n you have successfully added {show_pokemon_name(choice)} to your team! ")))
+      three_second_timer()
+      display_battle_menu(trainer.id)
+   
+      
+
+   
+    
