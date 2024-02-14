@@ -75,3 +75,8 @@ def handle_add_battle(pokemon, wild_pokemon):
 def handle_reset_pokemon(pokemon):
     pokemon.starting_hp = pokemon.max_hp
     db.session.commit()
+
+def handle_delete_trainer(choice):
+    trainer = get_trainer_by_id(choice)
+    db.session.delete(trainer)
+    db.session.commit()

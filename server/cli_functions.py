@@ -244,15 +244,25 @@ def display_all_trainers():
 
 def trainer_display_options():
    console.print(Align.left(" - What's Next? - "))
-   print("1. View Trainer Details \n2. Return to Trainer Center")
+   print("1. View Trainer Details \n2. Delete a Trainer \n3. Return to Trainer Center")
    two_line_space()
    print_choice()
-   print('1 \n2')
+   print('1 \n2 \n3')
    choice = get_choice()
    if choice == '1':
       inner_choice = input("What is the ID of the trainer you'd like to see?  ")
       display_trainer_details(inner_choice)
    elif choice == '2':
+      inner_choice = input("What is the ID of the Trainer that you would like to drop?")
+      if choice == '':
+         display_all_trainers()
+      else:
+         clear()
+         handle_delete_trainer(inner_choice)
+         console.print(" The Trainer sailed off into the distance... ")
+         two_second_timer()
+         display_all_trainers()
+   elif choice == '3':
       display_trainer_center_menu()
    else:
       print_error()
