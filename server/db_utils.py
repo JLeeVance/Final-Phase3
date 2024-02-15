@@ -1,5 +1,7 @@
 from models import *
 import random
+from sqlalchemy import desc
+
 # from flask import Flask
 
 def get_all_pokemon():
@@ -80,3 +82,7 @@ def handle_delete_trainer(choice):
     trainer = get_trainer_by_id(choice)
     db.session.delete(trainer)
     db.session.commit()
+
+# def get_highest_trainer_id():
+#     highest_trainer = db.session.query(Trainer).order_by(desc(Trainer.id)).first()
+#     return highest_trainer.id

@@ -265,7 +265,10 @@ def trainer_display_options():
    elif choice == '3':
       display_trainer_center_menu()
    else:
+      clear()
       print_error()
+      two_second_timer()
+      display_all_trainers()
 
 def display_trainer_details(trainer_id):
    clear()
@@ -338,16 +341,15 @@ def intro_choose_trainer():
    console.print(Align.center(Padding("Below is a list of all available Trainers! \nChoose your Trainer by entering their ID below!", (3,2))))
    two_line_space()
    trainers = get_all_trainers()
-   length = len(trainers)
-#    print(trainers)
+   trainer_ids = []
+
    for trainer in trainers:
+      trainer_ids.append(trainer.id)
       print(f"{trainer.id} | {trainer.name}")
    two_line_space()
 
-#    print_choice()
-#    print("1 - Trainer's ID \n2. Return to the Trainer Center")
    choice = get_choice()
-   if int(choice) in range(1 , int(length)+1):
+   if int(choice) in trainer_ids:
       display_battle_menu(choice)
    else:
       intro_choose_trainer()
@@ -497,8 +499,8 @@ def start_battle(trainer):
       ids = [poke.id for poke in pokemon]
       show_trainers_pokemon(pokemon, trainer)
       print('\n')
-      choice = input("What is the ID of the Pokémon you would like to use?")
-      if int(choice) not in ids:
+      choice = input("What is the ID of the Pokémon you would like to use?  ")
+      if choice == '' or int(choice) not in ids:
          clear()
          print_error()
          two_second_timer()
@@ -527,16 +529,16 @@ def intro_pokemon_in_battle(trainer, pokemon, wild_pokemon):
    handle_add_battle(pokemon, wild_pokemon)
    console.print(Align.center(Padding("Battle Beginning...", (2,2) )))
    one_second_timer()
-   console.print(Align.left(Padding(f"Trainer Name: {trainer.name} \nTrainer Pokémon: {pokemon.name}")))
+   console.print(Align.left(Padding(f"Trainer Name: {trainer.name} \nTrainer Pokémon: {pokemon.name} \nStarting HP: {pokemon.starting_hp}")))
    one_second_timer()
    print('\n')
-   console.print(Align.left(Padding(f"Wild Pokémon: {wild_pokemon.name}")))
+   console.print(Align.left(Padding(f"Wild Pokémon: {wild_pokemon.name} \nStarting HP: {wild_pokemon.starting_hp}")))
    two_second_timer()
    begin_literal_battle(trainer, pokemon, wild_pokemon)
 
 def begin_literal_battle(trainer, pokemon, wild_pokemon):
-   poke_attack_damage = pokemon.attack_damage
-   wild_pokemon_attack_damage = wild_pokemon.attack_damage
+   # poke_attack_damage = pokemon.attack_damage
+   # wild_pokemon_attack_damage = wild_pokemon.attack_damage
    two_line_space()
 
    while True:
@@ -553,15 +555,18 @@ def trainer_attack_text(pokemon, wild_pokemon):
    console.print(Align.right(Padding(f"{wild_pokemon.name}'s HP was reduced to {wild_pokemon.starting_hp} ")))
 
 
-def wild_attack_text(pokemon, wild_pokemon, trainer):
+def text_for_wild(wild_pokemon, pokemon):
    console.print(Align.right(Padding(f"{wild_pokemon.name} attacked {pokemon.name} with {wild_pokemon.attack_name}")))
    one_second_timer()
    console.print(Align.left(Padding(f"{pokemon.name}'s HP was reduced to {pokemon.starting_hp}")))
-   if pokemon.starting_hp <= 0:
-      two_second_timer()
-      handle_battle_loss(pokemon, trainer)
-   two_second_timer()
+   
 
+def wild_attack_text(pokemon, wild_pokemon, trainer):
+   if pokemon.starting_hp <= 0:
+      pokemon.starting_hp = 0
+   text_for_wild(wild_pokemon, pokemon)
+   two_second_timer()
+   handle_battle_loss(pokemon, trainer)
       
 
 def battle_menu(trainer, pokemon, wild_pokemon):
@@ -569,10 +574,12 @@ def battle_menu(trainer, pokemon, wild_pokemon):
    console.print(Align.left(Padding(f"- What would you like to do? -\n1. Attack \n2. Run")))
    choice = get_choice()
    if choice == '2':
-      display_trainer_center_menu()
+      run_away()
    elif choice == '1':
       reduce_wild_hp(wild_pokemon, poke_attack_damage)
       if wild_pokemon.starting_hp <= 0:
+         wild_pokemon.starting_hp = 0
+         trainer_attack_text(pokemon, wild_pokemon)
          two_second_timer()
          handle_battle_win(trainer, pokemon, wild_pokemon)
          
@@ -593,13 +600,20 @@ def handle_battle_win(trainer, pokemon, wild_pokemon):
    
 def handle_battle_loss(pokemon, trainer):
    clear()
-   console.print(Align.center(Padding(f"Oh no...Your {pokemon.name} didn't make it..\n\n when Pokémon perish...we all cry..")))
+   console.print(Align.center(Padding(f"Oh no...Your {pokemon.name} didn't win..\n\n When Pokémon reach 0 HP they must be treated.")))
    handle_pokemon_release(pokemon.id)
    handle_reset_pokemon(pokemon)
    three_second_timer()
+   clear()
+   console.print(Align.center(Padding(f"Your pokemon {pokemon.name} was healed and released back to the wild. \n\nCatch it again for another chance!")))
+   three_second_timer()
    display_trainer_center_menu()
    
-
+def run_away():
+   clear()
+   console.print(Align.center(Padding('You got away safely...')))
+   two_second_timer()
+   display_trainer_center_menu()
 
 
       
