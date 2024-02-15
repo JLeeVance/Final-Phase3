@@ -80,8 +80,13 @@ def handle_reset_pokemon(pokemon):
 
 def handle_delete_trainer(choice):
     trainer = get_trainer_by_id(choice)
+    pokemon = get_trainers_pokemon(choice)
+    if pokemon:
+        for poke in pokemon:
+            poke.trainer_id = None
     db.session.delete(trainer)
     db.session.commit()
+
 
 # def get_highest_trainer_id():
 #     highest_trainer = db.session.query(Trainer).order_by(desc(Trainer.id)).first()
