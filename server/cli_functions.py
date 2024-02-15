@@ -1,6 +1,7 @@
 from models import *
 import os
 import time
+from ascii import ascii_art_dict
 
 from rich import *
 from rich import print
@@ -8,6 +9,7 @@ from rich.console import Console
 from rich.align import Align
 from rich.padding import Padding
 from rich.text import Text
+from ascii_magic import AsciiArt, from_image
 
 from db_utils import *
 '''db.session'''
@@ -160,6 +162,8 @@ def display_pokemon_details(poke_id):
       print(f'Attack - {pokemon_details.attack_name}')
       print(f'Attack Damage - {pokemon_details.attack_damage}')
       print("\n")
+      ascii_art_dict[f'{pokemon_details.id}'].to_terminal(columns=100, monochrome=False)
+      two_line_space()
       owner_id = pokemon_details.trainer_id
       if not owner_id:
          print(f'This {pokemon_details.name} is currently wild!')
@@ -168,29 +172,30 @@ def display_pokemon_details(poke_id):
          print(f'This Pokémon is currently being trained by: {show_pokemon_trainer_name(owner_id)}')
       done = input("Press enter when finished")
       if len(done) >= 0:
-        clear()
         two_line_space()
-        display_details_menu()
+        display_details_menu(poke_id)
       
 
-def display_details_menu():
+def display_details_menu(poke_id):
    print(Align.center(" - What's next? - "))
    print('\n')
-   print(Align.center("1. See all Region Pokémon. \n2. Exit to Main Menu. \n3. Return to Pokémon Center."))
+   print(Align.center("1. See all Region Pokémon \n2. See next Pokémon \n3. Exit to Main Menu \n4. Return to Pokémon Center"))
    four_line_space()
    choice = get_choice()
    if choice == '1' or choice == '1.':
       show_region_pokemon()
-   elif choice == '2' or choice == '2.':
-      display_main_menu()
+   elif choice == '2' or choice =='2.':
+      display_pokemon_details(int(poke_id) + 1)
    elif choice == '3' or choice == '3.':
+      display_main_menu()
+   elif choice == '4' or choice == '4.':
       display_pokemon_center()
    else:
         clear()
         print_error()
         two_second_timer()
         clear()
-        display_details_menu()
+        display_details_menu(poke_id)
      
 ''' Variables or Functions specifically for Trainer Center '''
 
