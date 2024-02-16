@@ -69,7 +69,6 @@ def display_welcome():
   two_line_space()
   console.print(Align.center(Padding("Welcome to CLI Pokémon. Your adventure in the world of Pokémon begins now!" , (3,2))))
   two_line_space()
-  ascii_art_dict['153'].to_terminal(columns=100, monochrome=False)
   two_line_space()
   console.print(Align.center(Padding("From the Main Menu, you are able to view the Region's available Pokemon!" + "\n" + "You can also try your hand at becoming a Pokemon Master through our Trainer Area.")))
 #   text = "Welcome to CLI Pokemon. Your adventure in the world of Pokemon begins now! \n \n From the Main Menu, you are able to view the Region's available Pokemon and try your hand at becoming a Pokemon Master through our Trainer Area."
@@ -225,6 +224,7 @@ def intro_trainer_center():
 
 def display_trainer_center_menu():
    clear()
+   ascii_art_dict[f'155'].to_terminal(columns=150, monochrome=False)
    console.print(Align.center(Padding(' - Trainer Center - ', (3,2))))
    console.print(Align.center('1. See All Trainers \n2. Create New Trainer \n3. Enter Battle Arena \n4. Return to Main Menu'))
    four_line_space()
@@ -389,6 +389,7 @@ def intro_choose_trainer():
       trainer_ids.append(trainer.id)
       print(f"ID: {trainer.id} | {trainer.name}")
    two_line_space()
+#   ascii_art_dict['153'].to_terminal(columns=100, monochrome=False)
 
    choice = get_choice()
    if choice == '' or int(choice) not in trainer_ids:
@@ -570,7 +571,7 @@ def start_battle(trainer):
    pokemon = get_trainers_pokemon(trainer.id)
    if len(pokemon) == 0:
       clear()
-      console.print(Align.center(Padding(f"You do not have any Pokemon! You should try and catch some!", (3,3))))
+      console.print(Align.center(Padding(f"You do not have any Pokemon! You should try and catch some!", (4,4))))
       three_second_timer()
       poke_select_add(trainer)
    else:
@@ -625,7 +626,7 @@ def begin_literal_battle(trainer, pokemon, wild_pokemon):
     trainer_attack_text(pokemon, wild_pokemon)
     two_second_timer()
     handle_wild_attack(pokemon, wild_pokemon)
-    wild_attack_text(pokemon, wild_pokemon)
+    wild_attack_text(pokemon, wild_pokemon, trainer)
     two_second_timer()
    
 def trainer_attack_text(pokemon, wild_pokemon):
@@ -642,12 +643,13 @@ def text_for_wild(wild_pokemon, pokemon):
    two_second_timer()
    
 
-def wild_attack_text(pokemon, wild_pokemon):
+def wild_attack_text(pokemon, wild_pokemon, trainer):
    if pokemon.starting_hp <= 0:
       pokemon.starting_hp = 0
    text_for_wild(wild_pokemon, pokemon)
    two_second_timer()
-   handle_battle_loss(pokemon)
+   if pokemon.starting_hp == 0:
+      handle_battle_loss(pokemon, trainer)
       
 
 def battle_menu(trainer, pokemon, wild_pokemon):
@@ -656,7 +658,7 @@ def battle_menu(trainer, pokemon, wild_pokemon):
    choice = get_choice()
    if choice == '2':
       handle_reset_pokemon(wild_pokemon)
-      run_away()
+      run_away(trainer)
    elif choice == '1':
       reduce_wild_hp(wild_pokemon, poke_attack_damage)
       if wild_pokemon.starting_hp <= 0:
@@ -677,9 +679,9 @@ def handle_battle_win(trainer, pokemon, wild_pokemon):
    console.print(Align.center(Padding(f"See you next time, {trainer.name}")))
    two_second_timer()
    handle_reset_pokemon(wild_pokemon)
-   display_trainer_center_menu()
+   display_battle_menu(trainer.id)
    
-def handle_battle_loss(pokemon):
+def handle_battle_loss(pokemon, trainer):
    clear()
    console.print(Align.center(Padding(f"Oh no...Your {pokemon.name} didn't win..\n\n When Pokémon reach 0 HP they must be treated.", (3,3))))
    handle_pokemon_release(pokemon.id)
@@ -688,14 +690,14 @@ def handle_battle_loss(pokemon):
    clear()
    console.print(Align.center(Padding(f"Your pokemon {pokemon.name} was healed and released back to the wild. \n\nCatch it again for another chance!", (3,3))))
    three_second_timer()
-   display_trainer_center_menu()
+   display_battle_menu(trainer.id)
    
-def run_away():
+def run_away(trainer):
    one_second_timer()
    clear()
-   console.print(Align.center(Padding('You got away safely...\n\nMaybe next time...')))
+   console.print(Align.center(Padding('You got away safely...\n\nMaybe next time...', (3,3))))
    three_second_timer()
-   display_trainer_center_menu()
+   display_battle_menu(trainer.id)
 
 
       

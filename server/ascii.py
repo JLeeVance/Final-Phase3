@@ -154,6 +154,7 @@ mew = from_image('ascii/mew.webp')
 pokemon_center = from_image('ascii/pokemon_center.png')
 pokeball = from_image('ascii/pokeball.jpg')
 pokemon_logo = from_image('ascii/pokemon_logo.png')
+battle_arena = from_image('ascii/battle_arena.png')
 # = from_image('ascii/  .png')
 # = from_image('ascii/  .png')
 # = from_image('ascii/  .png')
@@ -314,6 +315,7 @@ ascii_art_dict = {
     '151': mew,
     '152': pokemon_center,
     '153': pokeball,
-    '154': pokemon_logo
+    '154': pokemon_logo,
+    '155': battle_arena
 }
 
