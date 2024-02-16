@@ -65,7 +65,13 @@ def print_choice():
 
 def display_welcome():
   clear()
-  console.print(Align.center(Padding("Welcome to CLI Pokémon. Your adventure in the world of Pokémon begins now!" + ("\n" * 2) + "From the Main Menu, you are able to view the Region's available Pokemon," + "\n" + "and try your hand at becoming a Pokemon Master through our Trainer Area.", (3,2))))
+  ascii_art_dict['154'].to_terminal(columns=150, monochrome=False)
+  two_line_space()
+  console.print(Align.center(Padding("Welcome to CLI Pokémon. Your adventure in the world of Pokémon begins now!" , (3,2))))
+  two_line_space()
+  ascii_art_dict['153'].to_terminal(columns=100, monochrome=False)
+  two_line_space()
+  console.print(Align.center(Padding("From the Main Menu, you are able to view the Region's available Pokemon!" + "\n" + "You can also try your hand at becoming a Pokemon Master through our Trainer Area.")))
 #   text = "Welcome to CLI Pokemon. Your adventure in the world of Pokemon begins now! \n \n From the Main Menu, you are able to view the Region's available Pokemon and try your hand at becoming a Pokemon Master through our Trainer Area."
 #   box = Align.center(welcome_mssg)
   two_line_space()
@@ -102,6 +108,8 @@ def display_pokemon_center():
    clear()
    print(Align.center(Padding("Welcome to the Pokémon center, where you can explore the Region's pokémon!", (1,1))))
    two_line_space()
+   Align.center(Padding(ascii_art_dict['152'].to_terminal(columns=170, monochrome=False), (2,2)))
+
    print(Align.center(Padding(" - Pokémon Center -  \n\n 1. See Pokémon in Region \n 2. Exit to Main Menu  ")))
    two_line_space()
    print_prompt()
@@ -124,19 +132,21 @@ def display_pokemon_center():
 def show_region_pokemon():
     poke = get_all_pokemon()
     for pokemon in poke:
-       print(f"ID: {pokemon.id} | {pokemon.name}")
+       console.print(Align.left(Padding(f"  ID: {pokemon.id} | {pokemon.name}", (0,2))))
     
     two_line_space()
     console.print(Align.center(Padding(" - Pokémon - ", (2,2))))
-    console.print(Align.center(Padding("1. View Pokémon Details \n2. Exit to Main Menu", (2,2))))
+    console.print(Align.center(Padding(" 1. View Pokémon Details \n 2. Return to Pokémon Center  \n 3. Exit to Main Menu ", (2,2))))
     print('\n')
     print_choice()
-    print(' 1 \n 2')
+    print(' 1 \n 2 \n 3')
     choice = get_choice()
     if choice == '1' or choice == '1.':
        poke_id = input("What is the ID of the Pokémon you'd like to see?   ")
        display_pokemon_details(poke_id)
-    elif choice == '2' or choice == '2.':
+    elif choice == '2' or choice =='2.':
+       display_pokemon_center()
+    elif choice == '3' or choice == '3.':
        clear()
        display_main_menu()
     else:
@@ -170,10 +180,7 @@ def display_pokemon_details(poke_id):
          four_line_space()
       else:
          print(f'This Pokémon is currently being trained by: {show_pokemon_trainer_name(owner_id)}')
-      done = input("Press enter when finished")
-      if len(done) >= 0:
-        two_line_space()
-        display_details_menu(poke_id)
+      display_details_menu(poke_id)
       
 
 def display_details_menu(poke_id):
@@ -427,17 +434,17 @@ def show_trainers_pokemon(pokemon, trainer):
    console.print(Align.center(Padding(f" - {trainer.name}'s Current Pokemon - ")))
    two_line_space()
    for poke in pokemon:
-      console.print(Align.center(Padding(f"{poke.id} | {poke.name}", (1,1))))
+      console.print(Align.center(Padding(f" ID: {poke.id} | {poke.name} | Current HP: {poke.starting_hp} | Max HP: {poke.max_hp}",(1,1))))
     
 def see_team_menu(pokemon, trainer):
     clear()
     show_trainers_pokemon(pokemon, trainer)
     two_line_space()
     console.print(Align.center(" - What would you like to do? -"))
-    console.print(Align.center("1. Remove Pokémon from team \n2. Add Pokémon to Team \n3. Exit to Battle Arena"))
+    console.print(Align.center(" 1. Remove Pokémon from team \n 2. Add Pokémon to Team \n 3. Heal A Pokemon \n 4. Exit to Battle Arena"))
     print('\n')
     print_choice()
-    print(" 1 \n 2 \n 3")
+    print(" 1 \n 2 \n 3 \n 4")
     choice = get_choice()
     if choice == '1':
        poke_select_remove(pokemon, trainer)
@@ -445,12 +452,47 @@ def see_team_menu(pokemon, trainer):
     elif choice == '2':
        poke_select_add(trainer)
     elif choice == '3':
+       choose_poke_to_heal(pokemon, trainer)
+    elif choice == '4':
        display_battle_menu(trainer.id)
     else:
        clear()
        print_error()
        two_second_timer()
        see_team_menu(pokemon, trainer)
+
+def choose_poke_to_heal(pokemon, trainer):
+   clear()
+   show_trainers_pokemon(pokemon, trainer)
+   ids = [poke.id for poke in pokemon]
+   two_line_space()
+   console.print(Align.center(Padding('What is the ID of the Pokémon you would like to heal?')))
+   two_line_space()
+   choice = get_choice()
+   if choice == '' or int(choice) not in ids:
+      print_error()
+      two_second_timer()
+      choose_poke_to_heal(pokemon, trainer)
+   else:
+      selec_pokemon = get_pokemon_by_id(int(choice))
+      handle_reset_pokemon(selec_pokemon)
+      print_heal(pokemon, trainer, selec_pokemon)
+
+def print_heal(pokemon, trainer, selec_pokemon):
+   clear()
+   console.print(Align.center(Padding(f"{selec_pokemon.name}'s HP was restored to {selec_pokemon.max_hp}", (3,3))))
+   two_second_timer()
+   see_team_menu(pokemon, trainer)
+
+
+
+      
+
+
+
+
+
+
 
 '''from within - Option 1 - Release Pokemon'''
 def poke_select_remove(pokemon, trainer):
@@ -583,34 +625,34 @@ def begin_literal_battle(trainer, pokemon, wild_pokemon):
     trainer_attack_text(pokemon, wild_pokemon)
     two_second_timer()
     handle_wild_attack(pokemon, wild_pokemon)
-    wild_attack_text(pokemon, wild_pokemon, trainer)
+    wild_attack_text(pokemon, wild_pokemon)
     two_second_timer()
    
 def trainer_attack_text(pokemon, wild_pokemon):
    console.print(Align.left(Padding(f"{pokemon.name} attacked {wild_pokemon.name} with {pokemon.attack_name}", (1,1))))
    two_second_timer()
-   console.print(Align.right(Padding(f"{wild_pokemon.name}'s HP was reduced to {wild_pokemon.starting_hp} ")))
+   console.print(Align.right(Padding(f"{wild_pokemon.name}'s HP was reduced to {wild_pokemon.starting_hp} ", (1,1))))
    two_second_timer()
 
 
 def text_for_wild(wild_pokemon, pokemon):
-   console.print(Align.right(Padding(f"{wild_pokemon.name} attacked {pokemon.name} with {wild_pokemon.attack_name}")))
+   console.print(Align.right(Padding(f"{wild_pokemon.name} attacked {pokemon.name} with {wild_pokemon.attack_name}", (1,1))))
    two_second_timer()
-   console.print(Align.left(Padding(f"{pokemon.name}'s HP was reduced to {pokemon.starting_hp}")))
+   console.print(Align.left(Padding(f"{pokemon.name}'s HP was reduced to {pokemon.starting_hp}", (1,1))))
    two_second_timer()
    
 
-def wild_attack_text(pokemon, wild_pokemon, trainer):
+def wild_attack_text(pokemon, wild_pokemon):
    if pokemon.starting_hp <= 0:
       pokemon.starting_hp = 0
    text_for_wild(wild_pokemon, pokemon)
-   three_second_timer()
+   two_second_timer()
    handle_battle_loss(pokemon)
       
 
 def battle_menu(trainer, pokemon, wild_pokemon):
    poke_attack_damage = pokemon.attack_damage
-   console.print(Align.center(Padding(f"- What would you like to do? -\n 1. Attack\n 2. Run")))
+   console.print(Align.center(Padding(f"- What would you like to do? -\n 1. Attack\n 2. Run", (1,1))))
    choice = get_choice()
    if choice == '2':
       handle_reset_pokemon(wild_pokemon)
@@ -625,7 +667,6 @@ def battle_menu(trainer, pokemon, wild_pokemon):
          
 def handle_wild_attack(pokemon, wild_pokemon):
    reduce_trainer_pokemon(pokemon, wild_pokemon.attack_damage)
-   console.print(Align.right(Padding(f"{wild_pokemon.name} attacked {pokemon.name} with {wild_pokemon.attack_name}")))
 
 def handle_battle_win(trainer, pokemon, wild_pokemon):
    clear()
